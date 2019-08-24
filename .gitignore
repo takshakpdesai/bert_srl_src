@@ -1,0 +1,6 @@
+*.txt
+.idea/
+data/
+__pycache__/
+*.pyc
+*.log
