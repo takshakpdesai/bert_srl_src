@@ -1,4 +1,5 @@
 from nltk.corpus import wordnet as wn
+from nltk.wsd import lesk
 
 def extend_list(l, max_len):
     m = l
@@ -19,9 +20,10 @@ def add_positional_features_to_text(ttext, token):
     return position_vector
 
 def get_hypernyms(text, entity):
+    text = text.split()
     l = [entity]
-    synset = wn.synsets(entity)[0]
     try:
+        synset = lesk(text, entity, 'n')
         for hyp in synset.hypernyms():
             name = hyp.name().partition('.')[0]
             l.append(name.replace("_", " "))
@@ -57,6 +59,4 @@ def convert_to_input(document, type, task_type, tokenizer, max_len, take_hyperny
                     input_ids = extend_list(input_ids, max_len)
                     input_segments = extend_list(input_segments, max_len)
                     input_masks = extend_list(input_masks, max_len)
-            if take_hypernyms:
-                print ("Training data size increased to "+ len(input_ids))
     return [input_ids, input_segments, input_masks], position_vect1, position_vect2
