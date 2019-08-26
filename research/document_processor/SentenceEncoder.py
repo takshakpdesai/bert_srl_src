@@ -31,18 +31,18 @@ class SentenceEncoder:
         else:
             return self.MODELS[type]
 
-    def get_embedding(self, d):
+    def get_embedding(self, d, take_hypernyms):
         input_ids, position_vect1, position_vect2 = PrepareInputForSentenceEncoder.convert_to_input(d, self.model_type, self.task_type, self.tokenizer,
-                                                                    self.max_len, add_positional_features=True)
+                                                                    self.max_len, take_hypernyms, add_positional_features=True)
         with torch.no_grad():
             d.linkTokenIDs([input_ids, position_vect1, position_vect2])
-            self.logger.info("Document " + str(d) + " encoded ")
+            self.logger.info("Document " + str(d.doc_id) + " encoded ")
         return d
 
-    def encode_text(self, document):
+    def encode_text(self, document, take_hypernyms = True):
         if isinstance(document, Document):
-            document = self.get_embedding(document)
+            document = self.get_embedding(document, take_hypernyms)
         if isinstance(document, dict):
             for idx in document.keys():
-                document[idx] = self.get_embedding(document[idx])
+                document[idx] = self.get_embedding(document[idx], take_hypernyms)
         return document

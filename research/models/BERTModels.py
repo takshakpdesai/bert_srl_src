@@ -30,7 +30,7 @@ class BERTForRelationClassification(nn.Module):
         pooled_output = self.language_model(input_ids, token_type_ids = input_segments, attention_mask = input_masks)[0]
         if position_vector1 is not None:
             pooled_output = torch.cat((pooled_output, position_vector1.float().unsqueeze(-1), position_vector2.float().unsqueeze(-1)), -1)
-        pooled_output = pooled_output[:, -1]
+        pooled_output = pooled_output[:,-1]
         predicted_relations = self.relation_classifier(pooled_output)
         predicted_directions = self.direction_classifier(pooled_output)
         if relation_labels is not None:

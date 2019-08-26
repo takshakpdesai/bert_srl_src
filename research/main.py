@@ -41,17 +41,17 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # declare objects:
-nlp = spacy.load('en') # TODO: Make param
+al = spacy.load('en') # TODO: Read from config
 s = SentenceEncoder(int(parse.model_type), 0, logger, int(parse.max_len)) # TODO: Change to arg parse parameter
 train_reader = SemEvalToDoc.SemEvalReader(parse.path_to_training_file, logger, SemEvalToDoc.SemEvalReader.TRAIN)
 test_reader = SemEvalToDoc.SemEvalReader(parse.path_to_test_file, logger, SemEvalToDoc.SemEvalReader.TEST)
 
 # go through pipeline:
 
-training_docs = train_reader.read_file(spacy_model=nlp)
+training_docs = train_reader.read_file(predictor=al)
 training_docs = s.encode_text(training_docs)
-test_docs = test_reader.read_file(spacy_model=nlp)
-test_docs = s.encode_text(test_docs)
+test_docs = test_reader.read_file(predictor=al)
+test_docs = s.encode_text(test_docs, take_hypernyms = False)
 
 model, sr_dict = train_model(training_docs, int(parse.batch_size), s.model, device, float(parse.learning_rate),
                              int(parse.epochs), logger)
