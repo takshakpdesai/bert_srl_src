@@ -40,3 +40,23 @@ class BERTForRelationClassification(nn.Module):
             return relation_loss + direction_loss
         else:
             return predicted_relations, predicted_directions
+
+class BERTForRoleLabeling(nn.Module):
+    def __init__(self, lm, num_relations, logger):
+        super(BERTForRoleLabeling, self).__init__()
+        self.language_model = lm
+        self.relation_classifier = nn.Linear(769, num_relations) # TODO: get from config, for small or large
+        self.num_relations = num_relations
+        self.logger = logger
+
+    def forward(self, input_ids, input_segments, input_masks, position_vector = None, relation_labels=None):
+        pooled_output = self.language_model(input_ids, token_type_ids = input_segments, attention_mask = input_masks)[0]
+        if position_vector is not None:
+            pooled_output = torch.cat((pooled_output, position_vector.float().unsqueeze(-1)), -1)
+        predicted_relations = self.relation_classifier(pooled_output)
+        if relation_labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+            relation_loss = loss_fct(predicted_relations.view(-1, self.num_relations), relation_labels.view(-1))
+            return relation_loss
+        else:
+            return predicted_relations
