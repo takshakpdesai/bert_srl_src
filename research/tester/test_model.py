@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import TensorDataset, RandomSampler, DataLoader
 
 from research.evaluation.semeval2010_writer import file_writer
+#from research.evaluation.conllsrlwriter import file_writer
 from research.libnlp.Document import Document
 
 
@@ -73,12 +74,12 @@ def get_relation_predictions(test_data_loader, model, device, sr_dict, true_file
     file1.close()
     file2.close()
 
-def get_role_predictions(test_data_loader, model, device, sr_dict, true_file, prediction_file, logger):
+def get_role_predictions(document, test_data_loader, model, device, sr_dict, true_file, prediction_file, logger):
     eval_loss = 0.0
     nb_eval_steps = 0
     inverse_sr_dict = {v: k for k, v in sr_dict.items()}
-    #file1 = open(true_file, "w+")
-    #file2 = open(prediction_file, "w+")
+    file1 = open(true_file, "w+")
+    file2 = open(prediction_file, "w+")
     model.eval()
     for batch in test_data_loader:
         batch = tuple(t.to(device) for t in batch)
@@ -86,16 +87,16 @@ def get_role_predictions(test_data_loader, model, device, sr_dict, true_file, pr
         with torch.no_grad():
             loss = model(bt_features, bt_segments, bt_masks, position_vector = bt_pos, relation_labels=bt_relations)
             predicted_relations = model(bt_features, bt_segments, bt_masks, position_vector = bt_pos)
-            #predicted_relations = predicted_relations.view(-1, len(sr_dict.keys()))
+
         eval_loss += loss.mean().item()
         nb_eval_steps += 1
-        #file1 = file_writer(bt_relations, bt_directions, bt_ids, file1, inverse_sr_dict)
-        #file2 = file_writer(predicted_relations, predicted_directions, bt_ids, file2, inverse_sr_dict, class_type="predicted")
+        file1 = file_writer(document, bt_relations, bt_ids, file1, inverse_sr_dict)
+        file2 = file_writer(document, predicted_relations, bt_ids, file2, inverse_sr_dict, class_type="predicted")
     logger.info("Total test loss: {}".format(eval_loss))
     logger.info("Test loss: {}".format(eval_loss / nb_eval_steps))
 
-    #file1.close()
-    #file2.close()
+    file1.close()
+    file2.close()
 
 
 def test_semantic_role_model(document, sr_dict, batch_size, model, device, true_file, prediction_file, logger):
@@ -131,4 +132,4 @@ def test_semantic_role_model(document, sr_dict, batch_size, model, device, true_
     test_sampler = RandomSampler(test_data)
     test_data_loader = DataLoader(test_data, sampler=test_sampler, batch_size=batch_size)
 
-    return get_role_predictions(test_data_loader, model, device, sr_dict, true_file, prediction_file, logger)
+    return get_role_predictions(document, test_data_loader, model, device, sr_dict, true_file, prediction_file, logger)
