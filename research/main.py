@@ -12,7 +12,6 @@ from research.trainer import semantic_relation_train_model, semantic_role_train_
 
 argument_parser = argparse.ArgumentParser()
 argument_parser.add_argument("-tr", "--path_to_training_file", help="Provide path to training file")
-argument_parser.add_argument("-dev", "--path_to_dev_file", help="Provide path to dev file")
 argument_parser.add_argument("-te", "--path_to_test_file", help="Provide path to test file")
 argument_parser.add_argument("-log", "--path_to_log_file", help="Provide path to log file")
 argument_parser.add_argument("-model", "--model_type", help="Provide model type")

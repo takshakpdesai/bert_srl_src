@@ -2,7 +2,6 @@ import torch
 from torch.utils.data import TensorDataset, RandomSampler, DataLoader
 
 from research.evaluation.semeval2010_writer import file_writer
-#from research.evaluation.conllsrlwriter import file_writer
 from research.libnlp.Document import Document
 
 
